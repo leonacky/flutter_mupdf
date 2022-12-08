@@ -16,35 +16,30 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
-  final _flutterMupdfPlugin = FlutterMupdf();
+  bool loaded = false;
+  Uint8List? pdfData;
 
   @override
   void initState() {
     super.initState();
     initPlatformState();
+    readPdf();
   }
 
-  // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    // We also handle the message potentially returning null.
-    try {
-      platformVersion =
-          await _flutterMupdfPlugin.getPlatformVersion() ?? 'Unknown platform version';
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
-    }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
     if (!mounted) return;
+  }
 
+  Future<void> readPdf() async {
+    print('tuandv 1');
+    await Future<void>.delayed(const Duration(seconds: 10));
+    ByteData bd = await rootBundle.load('assets/sample.pdf');
+    pdfData = bd.buffer.asUint8List();
+    loaded = true;
     setState(() {
-      _platformVersion = platformVersion;
+
     });
+    print('tuandv 2');
   }
 
   @override
@@ -54,9 +49,14 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('Plugin example app 1'),
         ),
-        body: Center(
-          child: Text('Running on 12: $_platformVersion\n'),
-        ),
+        body: loaded && pdfData != null
+            ? Container(
+                color: Colors.green,
+                child: MuPDFView(pdfData: pdfData),
+              )
+            : Container(
+                color: Colors.red,
+              ),
       ),
     );
   }
