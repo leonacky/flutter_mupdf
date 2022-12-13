@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -14,21 +15,25 @@ import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.platform.PlatformView;
 
+import com.artifex.sonui.editor.DocPdfView;
 import com.artifex.sonui.editor.DocumentView;
+//import com.github.barteksc.pdfviewer.PDFView;
 
 import java.io.File;
 import java.util.Map;
 
 public class MuPDFView implements PlatformView, MethodChannel.MethodCallHandler {
-  private final View documentView;
+  private final ViewGroup mainView;
+    private final DocumentView documentView;
+//  private final PDFView documentView;
   private final MethodChannel methodChannel;
 //  private final LinkHandler linkHandler;
 
   @SuppressWarnings("unchecked")
   MuPDFView(Context context, BinaryMessenger messenger, int id, Map<String, Object> params) {
     LayoutInflater layoutInflater = LayoutInflater.from(context);
-    documentView = layoutInflater.inflate(R.layout.test_view, null);
-//    documentView = view.findViewById(R.id.doc_view);
+    mainView = (ViewGroup) layoutInflater.inflate(R.layout.document_view, null);
+    documentView = mainView.findViewById(R.id.doc_view);
     methodChannel = new MethodChannel(messenger, "plugins.aotasoft.com/mupdf_" + id);
     methodChannel.setMethodCallHandler(this);
 
@@ -36,7 +41,8 @@ public class MuPDFView implements PlatformView, MethodChannel.MethodCallHandler 
 
     if (params.get("filePath") != null) {
       String filePath = (String) params.get("filePath");
-//      documentView.start(getURI(filePath), 1, true);
+      Log.d("tuandv", getURI(filePath).toString());
+      documentView.start(getURI(filePath), 0, false);
     }
   }
 
@@ -47,9 +53,9 @@ public class MuPDFView implements PlatformView, MethodChannel.MethodCallHandler 
 
   @Override
   public View getView() {
-    if (documentView == null)
+    if (mainView == null)
       Log.d("tuandv", "document null");
-    return documentView;
+    return mainView;
   }
 
   @Override

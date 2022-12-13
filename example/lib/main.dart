@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -17,29 +18,32 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   bool loaded = false;
-  Uint8List? pdfData;
+  String? pdfData;
 
   @override
   void initState() {
     super.initState();
     initPlatformState();
-    readPdf();
+    browseFile();
   }
 
   Future<void> initPlatformState() async {
     if (!mounted) return;
   }
 
-  Future<void> readPdf() async {
-    print('tuandv 1');
-    await Future<void>.delayed(const Duration(seconds: 10));
-    ByteData bd = await rootBundle.load('assets/sample.pdf');
-    pdfData = bd.buffer.asUint8List();
-    loaded = true;
-    setState(() {
+  Future<void> browseFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
 
-    });
-    print('tuandv 2');
+    if (result != null) {
+      pdfData = result.files.single.path;
+      loaded = true;
+      await Future<void>.delayed(const Duration(seconds: 1));
+      setState(() {
+
+      });
+    } else {
+      // User canceled the picker
+    }
   }
 
   @override
@@ -52,7 +56,7 @@ class _MyAppState extends State<MyApp> {
         body: loaded && pdfData != null
             ? Container(
                 color: Colors.green,
-                child: MuPDFView(pdfData: pdfData),
+                child: MuPDFView(filePath: pdfData),
               )
             : Container(
                 color: Colors.red,
